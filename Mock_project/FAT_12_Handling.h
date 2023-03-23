@@ -41,9 +41,9 @@ typedef struct {
 	uint32_t DATA;
 } FAT12_Address;
 
-static Boot_block boot_block_data;
+Boot_block boot_block_data;
 
-static FAT12_Address address;
+FAT12_Address address;
 
 static Boot_block * Ptr = &boot_block_data;
 
@@ -104,7 +104,6 @@ uint16_t cluster_entry(uint8_t a[]);
 *@return size of file entry
 */
 uint32_t size_entry(uint8_t a[]);
-
 
 
 /*
@@ -185,7 +184,3 @@ void print_Date(uint8_t data[]);
 void print_Time(uint8_t data[]);
 
 #endif
-
-
-
-

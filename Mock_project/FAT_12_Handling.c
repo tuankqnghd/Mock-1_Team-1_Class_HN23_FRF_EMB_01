@@ -32,12 +32,14 @@ read a entry 32 bytes, return entry address, size, print entry to command & prin
 *********************************************************************/
 
 
+
 void boot_block_read(FILE* file)
 {
 	// pointer file to 0x0
 	fseek(file, 0x0, SEEK_SET);
 	// read 512 byte of boot_block and save to struct boot_block_data
 	fread((Boot_block *) Ptr, sizeof(Boot_block), 1, file);
+	// printf("%d\n", convert(boot_block_data.number_root_entry, 2));
 	
 	// address calculate
 	address.VBS = 0;
@@ -66,8 +68,8 @@ void print_entry(uint8_t data[])
 
 void print_Filename(uint8_t data[])
 {
-	uint32_t i=0;
-	for(;i<8;i++)
+	uint32_t i = 0;
+	for(i = 0; i < 8 ; i++)
 	{
 		printf("%c",data[i]);
 	}
@@ -98,12 +100,13 @@ void print_Typefile(uint8_t data[])
 	else
 	{
 		printf("File ");
-		for(i=8; i<11;i++)
+		for(i = 8; i < 11; i++)
 		{
 			printf("%c",data[i]);
 		}
 	}
 }
+
 
 
 
@@ -153,8 +156,12 @@ void print_Time(uint8_t data[])
 
 void print_data(FILE* file, uint16_t cluster, uint32_t size)
 {
+	// cluster[2]_address = (number_reserved_sector + number_FATs * number_sectors_per_FAT) * 512+ 32*number_root_entry = 0x4200
+	uint32_t cluster2_address = (convert(boot_block_data.number_reserved_sector, 2) + (uint32_t)boot_block_data.number_FATs[0]*convert(boot_block_data.number_sectors_per_FAT, 2)) * 512+32*convert(boot_block_data.number_root_entry,2);
+	// pointer file to data_address = 0x4200
+	uint32_t data_address = cluster2_address + 512 * (cluster-2);
 	// fseek(file, data_address, SEEK_SET);
-	fseek(file,cluster_address(cluster),SEEK_SET);
+	fseek(file,data_address,SEEK_SET);
 	uint8_t buffer[512];
 	uint8_t i;
 	for (i = 0; i < (size/0x200) + 1; i++ )
@@ -203,4 +210,3 @@ uint32_t cluster_address(uint16_t cluster_order)
 {
 	return (address.DATA + convert(boot_block_data.number_bytes_per_sectors, 2) * (cluster_order-2));
 }
-

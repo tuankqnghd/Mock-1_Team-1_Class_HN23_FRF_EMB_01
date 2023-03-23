@@ -37,6 +37,7 @@ void command_root(FILE*file)
 			print_entry(data);
 		}
 	}
+
 	printf("\n-----------------------------------------------------\n");
 	printf("0. Exit\n");
 	uint8_t value;
@@ -117,11 +118,10 @@ void command_folder(FILE* file, uint16_t cluster)
 	uint16_t pre_address = cluster_entry(data);	
 	
 	// print entry list and order count
-	printf("   [Name]\t[Type]\t\t[Size]\t\t[Date]\t\t[Time]\n");
+	printf("   [Name]\t[Type]\t\t[Size]\t\t[Date]\t\t[Time]\n");	
 	while (1)
 	{
 		fread(data, 32, 1, file);
-
 		if (data[0] == 0)
 		{
 			break;
@@ -134,7 +134,7 @@ void command_folder(FILE* file, uint16_t cluster)
 			print_entry(data);
 		}
 	}
-	printf("\n--------------------------------------------\n");
+	printf("\n\n-----------------------------------------------------\n");
 	printf("0. Return\n");
 	uint8_t value;
 	while (1) 
@@ -174,7 +174,7 @@ void command_folder(FILE* file, uint16_t cluster)
 			{
 				system("cls");
 				print_data(file, cluster_entry(data), size_entry(data));
-				printf("\n\n--------------------------------------------\n");
+				printf("\n\n-----------------------------------------------------\n");
 				printf("0. return\n");
 				// Type '0' to back to command root
 				while (1) 
@@ -201,6 +201,8 @@ void main()
 	FILE * file = fopen ("floppy1.img", "r");
 	boot_block_read(file);
 	command_root(file);
+	AddNodeHeader(0);
+	AddNodeHeader(100);
+	AddNodeHeader(100);
 	fclose(file);
 }
-
