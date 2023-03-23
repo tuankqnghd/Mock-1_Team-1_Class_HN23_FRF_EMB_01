@@ -34,65 +34,155 @@ typedef struct {
 	uint8_t signature[2];
 } Boot_block;
 
-Boot_block boot_block_data;
+typedef struct {
+	uint32_t VBS;
+	uint32_t FAT;
+	uint32_t RDET;
+	uint32_t DATA;
+} FAT12_Address;
+
+static Boot_block boot_block_data;
+
+static FAT12_Address address;
 
 static Boot_block * Ptr = &boot_block_data;
 
+static FAT12_Address * Ptr_address = &address;
+
+
+
 /*
-* @brief add node data to the end of linklist
+* @brief read boot block and calculate all address
 *
-*@param inputdata is input data to new node
+*@param inputdata is file pointer need to read
 *
-*@return void
+*@return struct boot_block_data with value of each parameter and struct address
 */
 void boot_block_read(FILE* file);
 
 
+
 /*
-* @brief add node data to the head of linklist
+* @brief convert number
 *
-*@param inputdata is input data to new node
+*@param inputdata a is a uint8_t array 
+*@param inputdata size is size of array a 
 *
-*@return void
+*@return value after convert 
 */
 uint32_t convert(uint8_t a[], size_t size);
 
 
+
 /*
-* @brief add node data to the head of linklist
+* @brief calculate address cluster by cluster order
 *
-*@param inputdata is input data to new node
+*@param inputdata cluster_order is cluster number 
 *
-*@return void
+*@return address of cluster
+*/
+uint32_t cluster_address(uint16_t cluster_order);
+
+
+
+/*
+* @brief read the cluster entry of a entry 32 bytes
+*
+*@param inputdata a is uint8_ t array[32] contains entry  
+*
+*@return number of cluster try
 */
 uint16_t cluster_entry(uint8_t a[]);
 
 
+
 /*
-* @brief add node data to the head of linklist
+* @brief read the size entry of a entry 32 bytes
 *
-*@param inputdata is input data to new node
+*@param inputdata a is uint8_ t array[32] contains entry  
 *
-*@return void
+*@return size of file entry
 */
 uint32_t size_entry(uint8_t a[]);
 
 
+
 /*
-* @brief delete the last node data of linklist
+* @brief print a entry 32 bytes: file name, type, size, date, time 
 *
-*@return void
+*@param inputdata data is uint8_ t array[32] contains entry  
+*
+*@return void print to command
 */
-void print_entry(uint8_t* data[]);
+void print_entry(uint8_t data[]);
 
 
 
 /*
-* @brief delete the last node data of linklist
+* @brief print data of a file 
 *
-*@return void
+*@param inputdata file is FAT 12 file pointer
+*@param inputdata cluster is number of cluster which save data
+*@param inputdata size is size of data need to print
+*
+*@return void print to command
 */
 void print_data(FILE* file, uint16_t cluster, uint32_t size);
+
+
+
+/*
+* @brief print file name of a entry 32 bytes 
+*
+*@param inputdata data is uint8_ t array[32] contains entry  
+*
+*@return void print to command
+*/
+void print_Filename(uint8_t data[]);
+
+
+
+/*
+* @brief print size file of a entry 32 bytes 
+*
+*@param inputdata data is uint8_ t array[32] contains entry  
+*
+*@return void print to command
+*/
+void print_Sizefile(uint8_t data[]);
+
+
+
+/*
+* @brief print type file of a entry 32 bytes 
+*
+*@param inputdata data is uint8_ t array[32] contains entry  
+*
+*@return void print to command
+*/
+void print_Typefile(uint8_t data[]);
+
+
+
+/*
+* @brief print date modified file of a entry 32 bytes 
+*
+*@param inputdata data is uint8_ t array[32] contains entry  
+*
+*@return void print to command
+*/
+void print_Date(uint8_t data[]);
+
+
+
+/*
+* @brief print time modified file of a entry 32 bytes 
+*
+*@param inputdata data is uint8_ t array[32] contains entry  
+*
+*@return void print to command
+*/
+void print_Time(uint8_t data[]);
 
 #endif
 
