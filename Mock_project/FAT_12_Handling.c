@@ -96,7 +96,9 @@ void print_Typefile(uint8_t data[])
 {
 	uint32_t i;
 	if(size_entry(data)==0)
+	{
 		printf("File Folder");
+	}
 	else
 	{
 		printf("File ");

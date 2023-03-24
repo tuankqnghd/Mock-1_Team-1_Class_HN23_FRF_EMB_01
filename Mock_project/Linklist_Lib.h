@@ -42,6 +42,14 @@ void AddNodeHeader(uint32_t inputdata);
 
 
 /*
+* @brief read the fisrt node data
+*
+*@return data of the first node
+*/
+uint32_t ReadNodeHeader();
+
+
+/*
 * @brief delete the last node data of linklist
 *
 *@return void
@@ -54,7 +62,7 @@ void DeleteNode(uint32_t inputdata);
 *
 *@return void
 */
-void DeleteNodeLast(void);
+void DeleteNodeHeader();
 
 
 /*

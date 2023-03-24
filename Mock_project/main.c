@@ -7,11 +7,11 @@
 
 /* run this program using the console pauser or add your own getch, system("pause") or input loop */
 
-void command_root(FILE*file);
+void command_RDET(FILE*file);
 
 void command_folder(FILE*file, uint16_t cluster);
 
-void command_root(FILE*file)
+void command_RDET(FILE*file)
 {
 	// file pointer to root_address
 	fseek(file, address.RDET, SEEK_SET);
@@ -29,7 +29,7 @@ void command_root(FILE*file)
 		{
 			break;
 		}
-		// bo cac entry phu
+		// skip sub-entry
 		if (data[11] != 0x0F)
 		{
 			count++;
@@ -40,21 +40,26 @@ void command_root(FILE*file)
 
 	printf("\n-----------------------------------------------------\n");
 	printf("0. Exit\n");
+	
+	// Type number to open file, exit program
 	uint8_t value;
 	while (1) 
 	{
     	scanf("%d", &value);
+    	// Exit program
     	if (value == 0) 
 		{
 			exit(0);
     	} 
+    	// Invalid value, type again
 		else if ((value < 0) || (value > count))
 		{
       		printf("Invalid value, please re-enter!\n");
     	}
+    	// Number to open file
     	else 
     	{
-    		// read root have to entry to data[32]
+    		// read 32 bytes of entry
     		fseek(file, address.RDET, SEEK_SET);
 			for (count = 0; count < value; count++)
 			{
@@ -68,7 +73,8 @@ void command_root(FILE*file)
 			if ((data[8] == 0x20) && (data[9] == 0x20) && (data[10] == 0x20))
 			{
 				system("cls");
-				command_folder(file, cluster_entry(data));
+				// Add first node is number cluster entry
+				AddNodeHeader(cluster_entry(data));
 				return;
 			}
 			// if entry to data, print data
@@ -85,7 +91,6 @@ void command_root(FILE*file)
     				if (value == 0) 
 					{
 						system("cls");
-						command_root(file);
       					return;
     				}
 					else
@@ -100,22 +105,11 @@ void command_root(FILE*file)
 
 void command_folder(FILE* file, uint16_t cluster)
 {
-	if (cluster == 0)
-	{
-		command_root(file);
-		return;
-	}
-	// file poiter to data address
-	fseek(file, cluster_address(cluster), SEEK_SET);
-	
-	// read pre_entry_address and entry_address
+	// file poiter to data address, skip first 64 bytes
+	fseek(file, cluster_address(cluster) + 64, SEEK_SET);
+
 	uint8_t data[32];
-	uint8_t i = 0;
 	uint8_t count = 0;
-	fread(data, 32, 1, file);
-	uint16_t current_address = cluster_entry(data);	
-	fread(data, 32, 1, file);	
-	uint16_t pre_address = cluster_entry(data);	
 	
 	// print entry list and order count
 	printf("   [Name]\t[Type]\t\t[Size]\t\t[Date]\t\t[Time]\n");	
@@ -136,23 +130,29 @@ void command_folder(FILE* file, uint16_t cluster)
 	}
 	printf("\n\n-----------------------------------------------------\n");
 	printf("0. Return\n");
+	
+	// Type number to open file, exit program
 	uint8_t value;
 	while (1) 
 	{
     	scanf("%d", &value);
+    	// Exit program
     	if (value == 0) 
 		{
 			system("cls");
-			command_folder(file, pre_address);
+			// Delete first node
+			DeleteNodeHeader();
 			return;
     	} 
+    	// Invalid value, type again
 		else if ((value < 0) || (value > count))
 		{
       		printf("Invalid value, please re-enter!\n");
     	}
+    	// Number to open file
     	else 
     	{
-    		// read root have to entry to data[32]
+    		// read 32 bytes of entry
 			fseek(file, cluster_address(cluster) + 64, SEEK_SET);
 			for (count = 0; count < value; count++)
 			{
@@ -166,7 +166,8 @@ void command_folder(FILE* file, uint16_t cluster)
 			if ((data[8] == 0x20) && (data[9] == 0x20) && (data[10] == 0x20))
 			{
 				system("cls");
-				command_folder(file, cluster_entry(data));
+				// Add first node is number cluster entry 
+				AddNodeHeader(cluster_entry(data));
 				return;
 			}
 			// if entry to data, print data
@@ -183,7 +184,6 @@ void command_folder(FILE* file, uint16_t cluster)
     				if (value == 0) 
 					{
 						system("cls");
-						command_folder(file, current_address);
       					return;
     				}
 					else
@@ -200,9 +200,20 @@ void main()
 {
 	FILE * file = fopen ("floppy1.img", "r");
 	boot_block_read(file);
-	command_root(file);
+	// Add cluster number of RDET = 0
 	AddNodeHeader(0);
-	AddNodeHeader(100);
-	AddNodeHeader(100);
+	while (1)
+	{
+		// command by cluster number manage by linklist lib, add first node while enter a folder, and delete fisrt node when back folder -> present folder's cluster number is first node
+		// check if cluster number = 0 (RDET)
+		if (ReadNodeHeader() == 0)
+		{
+			command_RDET(file);
+		}
+		else
+		{
+			command_folder(file, ReadNodeHeader());
+		}
+	}
 	fclose(file);
 }

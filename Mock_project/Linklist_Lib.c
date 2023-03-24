@@ -83,6 +83,12 @@ void AddNodeHeader(uint32_t inputdata)
 }
 
 
+uint32_t ReadNodeHeader()
+{
+	return (HEAD->data);
+}
+
+
 void DeleteNode(uint32_t inputdata)
 {
 	NodeType* node = HEAD;
@@ -116,7 +122,7 @@ void DeleteNode(uint32_t inputdata)
 }
 
 
-void DeleteNodeHeader(void)
+void DeleteNodeHeader()
 {
 	NodeType* node = HEAD;
 	// Check if node is not empty
